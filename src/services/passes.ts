@@ -143,7 +143,7 @@ export async function predictPasses(
     const elevation = radiansToDegrees(lookAngles.elevation);
     const azimuth = radiansToDegrees(lookAngles.azimuth);
 
-    if (elevation > minElevation && elevation < 90) {
+    if (elevation >= 0) {
       if (!inPass) {
         inPass = true;
         passStart = new Date(t);
@@ -160,15 +160,17 @@ export async function predictPasses(
         passLastAzimuth = azimuth;
       }
     } else if (inPass) {
-      passes.push({
-        rise: passStart!,
-        max: passMaxTime!,
-        set: new Date(t),
-        maxElevation: Math.round(passMaxElevation * 10) / 10,
-        azimuthRise: Math.round(passAzimuthRise),
-        azimuthMax: Math.round(passAzimuthMax),
-        azimuthSet: Math.round(passLastAzimuth),
-      });
+      if (passMaxElevation >= minElevation) {
+        passes.push({
+          rise: passStart!,
+          max: passMaxTime!,
+          set: new Date(t),
+          maxElevation: Math.round(passMaxElevation * 10) / 10,
+          azimuthRise: Math.round(passAzimuthRise),
+          azimuthMax: Math.round(passAzimuthMax),
+          azimuthSet: Math.round(passLastAzimuth),
+        });
+      }
 
       inPass = false;
       passStart = null;
